@@ -1,0 +1,23 @@
+# env
+.env
+.env.*
+!.env.example
+
+# Next / Node
+node_modules/
+.next/
+out/
+
+# builds
+dist/
+build/
+
+# logs
+*.log
+
+# TS
+*.tsbuildinfo
+
+# OS
+.DS_Store
+Thumbs.db

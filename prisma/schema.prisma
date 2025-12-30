@@ -1,0 +1,174 @@
+generator client {
+    provider = "prisma-client-js"
+    binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+    output = "/home/ubuntu/sii_goo_consultores/nextjs_space/node_modules/.prisma/client"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+// NextAuth Models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// User Model
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  password      String?
+  image         String?
+  role          String    @default("client") // client, gestor, admin
+  company       String?
+  phone         String?
+  cif           String?
+  address       String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts         Account[]
+  sessions         Session[]
+  projects         Project[]
+  documents        Document[]
+  messagesSent     Message[] @relation("SentMessages")
+  messagesReceived Message[] @relation("ReceivedMessages")
+  serviceRequests  ServiceRequest[]
+
+  @@map("users")
+}
+
+// Project Model (para contabilidad analítica)
+model Project {
+  id              String   @id @default(cuid())
+  userId          String
+  name            String
+  type            String   // "obra", "proyecto", "siniestro", "general"
+  reference       String?  // número de expediente
+  description     String?  @db.Text
+  status          String   @default("activo") // "activo", "completado", "pausado"
+  startDate       DateTime
+  endDate         DateTime?
+  
+  // Datos financieros
+  budget          Float    @default(0)
+  totalIncome     Float    @default(0)
+  totalExpenses   Float    @default(0)
+  netProfit       Float    @default(0)
+  profitMargin    Float    @default(0)
+  
+  // Metadatos
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documents       Document[]
+
+  @@map("projects")
+}
+
+// Document Model
+model Document {
+  id              String   @id @default(cuid())
+  userId          String
+  projectId       String?
+  name            String
+  type            String   // "factura", "recibo", "contrato", "informe", "nomina", "otro"
+  cloud_storage_path String
+  isPublic        Boolean  @default(false)
+  fileSize        Int?
+  mimeType        String?
+  uploadedBy      String   // "client" o "gestor"
+  createdAt       DateTime @default(now())
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project         Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  @@map("documents")
+}
+
+// Message Model
+model Message {
+  id              String   @id @default(cuid())
+  senderId        String
+  receiverId      String
+  subject         String?
+  content         String   @db.Text
+  read            Boolean  @default(false)
+  createdAt       DateTime @default(now())
+
+  sender          User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver        User     @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@map("messages")
+}
+
+// ServiceRequest Model
+model ServiceRequest {
+  id              String   @id @default(cuid())
+  userId          String
+  service         String   // tipo de servicio solicitado
+  description     String   @db.Text
+  status          String   @default("pendiente") // "pendiente", "en_proceso", "completado"
+  priority        String   @default("normal") // "baja", "normal", "alta"
+  assignedTo      String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("service_requests")
+}
+
+// ContactForm Model (mantener el existente)
+model ContactForm {
+  id        Int      @id @default(autoincrement())
+  nombre    String
+  email     String
+  telefono  String?
+  empresa   String?
+  servicio  String
+  mensaje   String   @db.Text
+  leido     Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("contact_forms")
+}
