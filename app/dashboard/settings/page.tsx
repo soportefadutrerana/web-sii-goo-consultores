@@ -21,6 +21,7 @@ export default function SettingsPage() {
   const router = useRouter();
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -32,15 +33,18 @@ export default function SettingsPage() {
 
   const fetchUserData = async () => {
     try {
-      const response = await fetch('/api/users');
+      setError(null);
+      const response = await fetch('/api/user');
       if (response.ok) {
-        const users = await response.json();
-        const currentUser = users.find((u: UserData) => u.email === session?.user?.email);
-        if (currentUser) {
-          setUserData(currentUser);
-        }
+        const user = await response.json();
+        setUserData(user);
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || 'Error al cargar los datos del usuario');
+        console.error('Error al cargar datos de usuario:', errorData);
       }
     } catch (error) {
+      setError('Error de conexión al cargar los datos del usuario');
       console.error('Error al cargar datos de usuario:', error);
     } finally {
       setLoading(false);
@@ -72,12 +76,34 @@ export default function SettingsPage() {
     );
   }
 
-  if (!userData) {
+  if (!userData && !loading) {
     return (
       <div className="container mx-auto p-6 max-w-4xl">
-        <div className="text-center py-12">
-          <p className="text-gray-600">No se pudieron cargar los datos del usuario.</p>
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-gray-900">Configuración</h1>
+          <p className="text-gray-600 mt-1">Información de tu perfil y cuenta</p>
         </div>
+        <Card>
+          <CardContent className="py-12">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <User className="w-8 h-8 text-red-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                No se pudieron cargar los datos del usuario
+              </h3>
+              <p className="text-gray-600 mb-4">
+                {error || 'Hubo un problema al intentar cargar tu información.'}
+              </p>
+              <button
+                onClick={fetchUserData}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Intentar de nuevo
+              </button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -98,7 +124,7 @@ export default function SettingsPage() {
               Información del Perfil
             </CardTitle>
             <CardDescription>
-              Datos de tu cuenta en SIi Goo Consultores
+              Datos de tu cuenta en Sii Goo Consultores
             </CardDescription>
           </CardHeader>
           <CardContent>

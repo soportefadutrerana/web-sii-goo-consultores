@@ -73,10 +73,15 @@ export default function MessagesPage() {
       const response = await fetch('/api/messages');
       if (response.ok) {
         const data = await response.json();
-        setMessages(data);
+        setMessages(data || []);
+      } else {
+        const error = await response.json();
+        console.error('Error al cargar mensajes:', error);
+        toast.error(error.error || 'Error al cargar mensajes');
       }
     } catch (error) {
       console.error('Error al cargar mensajes:', error);
+      toast.error('Error de conexión al cargar mensajes');
     } finally {
       setLoading(false);
     }
@@ -84,15 +89,21 @@ export default function MessagesPage() {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('/api/users');
+      // Primero obtener el usuario actual
+      const userResponse = await fetch('/api/user');
+      if (userResponse.ok) {
+        const currentUser = await userResponse.json();
+        setCurrentUserId(currentUser.id);
+        setCurrentUserRole(currentUser.role);
+      }
+
+      // Luego obtener usuarios disponibles para mensajes
+      const response = await fetch('/api/users/available');
       if (response.ok) {
         const data = await response.json();
         setUsers(data);
-        const currentUser = data.find((u: User) => u.email === session?.user?.email);
-        if (currentUser) {
-          setCurrentUserId(currentUser.id);
-          setCurrentUserRole(currentUser.role);
-        }
+      } else {
+        console.error('Error al cargar usuarios disponibles');
       }
     } catch (error) {
       console.error('Error al cargar usuarios:', error);
@@ -101,6 +112,16 @@ export default function MessagesPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!formData.receiverId) {
+      toast.error('Por favor selecciona un destinatario');
+      return;
+    }
+
+    if (!formData.subject || !formData.content) {
+      toast.error('Por favor completa todos los campos requeridos');
+      return;
+    }
 
     try {
       const response = await fetch('/api/messages', {
@@ -119,7 +140,8 @@ export default function MessagesPage() {
         toast.error(error.error || 'Error al enviar mensaje');
       }
     } catch (error) {
-      toast.error('Error al enviar mensaje');
+      console.error('Error al enviar mensaje:', error);
+      toast.error('Error de conexión al enviar mensaje');
     }
   };
 
@@ -161,13 +183,8 @@ export default function MessagesPage() {
   };
 
   const getAvailableRecipients = () => {
-    if (currentUserRole === 'client') {
-      // Clientes solo pueden enviar mensajes a gestores/admins
-      return users.filter((u) => u.role === 'gestor' || u.role === 'admin');
-    } else {
-      // Gestores/admins pueden enviar mensajes a cualquiera excepto a sí mismos
-      return users.filter((u) => u.id !== currentUserId);
-    }
+    // Los usuarios ya vienen filtrados del endpoint según el rol
+    return users;
   };
 
   if (status === 'loading' || loading) {
@@ -223,11 +240,20 @@ export default function MessagesPage() {
                     <SelectValue placeholder="Seleccionar destinatario" />
                   </SelectTrigger>
                   <SelectContent>
-                    {getAvailableRecipients().map((user) => (
-                      <SelectItem key={user.id} value={user.id}>
-                        {user.name} ({user.role}) - {user.email}
-                      </SelectItem>
-                    ))}
+                    {getAvailableRecipients().length === 0 ? (
+                      <div className="px-2 py-1.5 text-sm text-gray-500">
+                        No hay destinatarios disponibles
+                      </div>
+                    ) : (
+                      getAvailableRecipients().map((user) => {
+                        const roleName = user.role === 'client' ? 'Cliente' : user.role === 'gestor' ? 'Gestor' : 'Admin';
+                        return (
+                          <SelectItem key={user.id} value={user.id}>
+                            {user.name} ({roleName}) - {user.email}
+                          </SelectItem>
+                        );
+                      })
+                    )}
                   </SelectContent>
                 </Select>
               </div>

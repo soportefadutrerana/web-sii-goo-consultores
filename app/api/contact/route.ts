@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import prisma from '@/lib/db';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
-const prisma = new PrismaClient();
-
+// POST - Crear nuevo mensaje de contacto
 export async function POST(request: NextRequest) {
   try {
     const body = await request?.json?.();
@@ -52,6 +53,94 @@ export async function POST(request: NextRequest) {
     console.error('Error al procesar formulario de contacto:', error);
     return NextResponse.json(
       { error: 'Error al procesar la solicitud' },
+      { status: 500 }
+    );
+  }
+}
+
+// GET - Obtener mensajes de contacto (solo para gestores/admins)
+export async function GET() {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session || !session.user) {
+      return NextResponse.json(
+        { error: 'No autenticado' },
+        { status: 401 }
+      );
+    }
+
+    const userEmail = session.user.email;
+    const user = await prisma.user.findUnique({
+      where: { email: userEmail! },
+    });
+
+    if (!user || (user.role !== 'admin' && user.role !== 'gestor')) {
+      return NextResponse.json(
+        { error: 'No tienes permisos para ver estos mensajes' },
+        { status: 403 }
+      );
+    }
+
+    const messages = await prisma.contactForm.findMany({
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return NextResponse.json(messages);
+  } catch (error) {
+    console.error('Error al obtener mensajes de contacto:', error);
+    return NextResponse.json(
+      { error: 'Error al obtener mensajes' },
+      { status: 500 }
+    );
+  }
+}
+
+// PUT - Marcar mensaje como leído
+export async function PUT(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session || !session.user) {
+      return NextResponse.json(
+        { error: 'No autenticado' },
+        { status: 401 }
+      );
+    }
+
+    const userEmail = session.user.email;
+    const user = await prisma.user.findUnique({
+      where: { email: userEmail! },
+    });
+
+    if (!user || (user.role !== 'admin' && user.role !== 'gestor')) {
+      return NextResponse.json(
+        { error: 'No tienes permisos' },
+        { status: 403 }
+      );
+    }
+
+    const { id } = await request.json();
+
+    if (!id) {
+      return NextResponse.json(
+        { error: 'ID del mensaje es obligatorio' },
+        { status: 400 }
+      );
+    }
+
+    const message = await prisma.contactForm.update({
+      where: { id },
+      data: { leido: true },
+    });
+
+    return NextResponse.json(message);
+  } catch (error) {
+    console.error('Error al marcar mensaje como leído:', error);
+    return NextResponse.json(
+      { error: 'Error al actualizar mensaje' },
       { status: 500 }
     );
   }

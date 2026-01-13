@@ -7,7 +7,12 @@ import { usePathname } from 'next/navigation';
 export default function Navbar() {
   const pathname = usePathname();
 
-  const isActive = (path: string) => pathname === path;
+  const isActive = (path: string) => {
+    if (path === '/') {
+      return pathname === '/';
+    }
+    return pathname === path || pathname.startsWith(path + '/');
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100">
@@ -36,6 +41,9 @@ export default function Navbar() {
 
           {/* Navigation Links */}
           <div className="hidden lg:flex items-center space-x-8">
+            <NavLink href="/" isActive={isActive('/')}>
+              Inicio
+            </NavLink>
             <NavLink href="/servicios" isActive={isActive('/servicios')}>
               Servicios
             </NavLink>

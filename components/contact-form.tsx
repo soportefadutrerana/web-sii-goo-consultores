@@ -62,9 +62,11 @@ export default function ContactForm() {
       });
 
       if (!response?.ok) {
-        throw new Error('Error al enviar el formulario');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Error al enviar el formulario');
       }
 
+      const result = await response.json();
       setIsSuccess(true);
       setFormData({
         nombre: '',

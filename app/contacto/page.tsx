@@ -59,8 +59,6 @@ export default function ContactoPage() {
                 <h4 className="text-xl font-bold mb-4">Horario de Atención</h4>
                 <div className="space-y-2 text-blue-100">
                   <p><strong className="text-white">Lunes - Viernes:</strong> 9:00 - 18:00</p>
-                  <p><strong className="text-white">Sábados:</strong> 10:00 - 14:00</p>
-                  <p><strong className="text-white">Domingos:</strong> Cerrado</p>
                 </div>
               </div>
             </div>

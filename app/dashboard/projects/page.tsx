@@ -92,7 +92,14 @@ export default function ProjectsPage() {
       const response = await fetch('/api/projects');
       if (response.ok) {
         const data = await response.json();
-        setProjects(data);
+        // Transformar los datos del API al formato esperado por el frontend
+        const transformedData = data.map((project: any) => ({
+          ...project,
+          income: project.totalIncome ?? 0,
+          expenses: project.totalExpenses ?? 0,
+          profit: project.netProfit ?? 0,
+        }));
+        setProjects(transformedData);
       }
     } catch (error) {
       console.error('Error al cargar proyectos:', error);
@@ -156,9 +163,9 @@ export default function ProjectsPage() {
       name: project.name,
       type: project.type,
       status: project.status,
-      budget: project.budget.toString(),
-      income: project.income.toString(),
-      expenses: project.expenses.toString(),
+      budget: (project.budget ?? 0).toString(),
+      income: (project.income ?? 0).toString(),
+      expenses: (project.expenses ?? 0).toString(),
       userId: project.user.id,
     });
     setIsDialogOpen(true);
@@ -178,6 +185,9 @@ export default function ProjectsPage() {
   };
 
   const formatCurrency = (value: number) => {
+    if (isNaN(value) || value === null || value === undefined) {
+      return '0,00 €';
+    }
     return new Intl.NumberFormat('es-ES', {
       style: 'currency',
       currency: 'EUR',
@@ -423,7 +433,7 @@ export default function ProjectsPage() {
                         {formatCurrency(project.profit)}
                       </TableCell>
                       <TableCell className={`text-right ${getMarginColor(project.profitMargin)}`}>
-                        {project.profitMargin.toFixed(1)}%
+                        {isNaN(project.profitMargin) ? '0.0' : project.profitMargin.toFixed(1)}%
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end space-x-2">
