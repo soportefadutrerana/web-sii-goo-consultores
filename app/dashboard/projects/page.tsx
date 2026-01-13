@@ -250,11 +250,11 @@ export default function ProjectsPage() {
                 <div className="space-y-2">
                   <Label htmlFor="type">Tipo *</Label>
                   <Select
-                    value={formData.type}
+                    value={formData.type || undefined}
                     onValueChange={(value) => setFormData({ ...formData, type: value })}
                   >
                     <SelectTrigger>
-                      <SelectValue />
+                      <SelectValue placeholder="Selecciona un tipo" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="obra">Obra</SelectItem>
@@ -270,11 +270,11 @@ export default function ProjectsPage() {
                 <div className="space-y-2">
                   <Label htmlFor="status">Estado</Label>
                   <Select
-                    value={formData.status}
+                    value={formData.status || undefined}
                     onValueChange={(value) => setFormData({ ...formData, status: value })}
                   >
                     <SelectTrigger>
-                      <SelectValue />
+                      <SelectValue placeholder="Selecciona un estado" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="active">Activo</SelectItem>
@@ -287,7 +287,7 @@ export default function ProjectsPage() {
                   <div className="space-y-2">
                     <Label htmlFor="userId">Cliente</Label>
                     <Select
-                      value={formData.userId}
+                      value={formData.userId || undefined}
                       onValueChange={(value) => setFormData({ ...formData, userId: value })}
                     >
                       <SelectTrigger>

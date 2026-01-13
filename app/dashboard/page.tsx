@@ -1,17 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line
 } from "recharts";
 import {
-  Building2, TrendingUp, DollarSign, Briefcase, FileText,
-  LogOut, Menu, X, Home, FolderOpen, MessageSquare, Settings
+  TrendingUp, DollarSign, Briefcase
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 interface Project {
   id: string;
@@ -35,7 +33,6 @@ export default function DashboardPage() {
   const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -127,89 +124,16 @@ export default function DashboardPage() {
   }));
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}>
-        <div className="h-full flex flex-col">
-          <div className="p-6 border-b">
-            <div className="flex items-center space-x-2">
-              <Building2 className="w-8 h-8 text-blue-600" />
-              <span className="text-xl font-bold text-gray-900">SIi Goo</span>
-            </div>
-            <p className="text-sm text-gray-600 mt-1">{(session.user as any).name}</p>
-          </div>
-
-          <nav className="flex-1 p-4 space-y-2">
-            <button
-              onClick={() => router.push('/dashboard')}
-              className="w-full flex items-center space-x-3 px-4 py-3 bg-blue-50 text-blue-600 rounded-lg font-medium hover:bg-blue-100 transition-colors"
-            >
-              <Home className="w-5 h-5" />
-              <span>Dashboard</span>
-            </button>
-            <button
-              onClick={() => router.push('/dashboard/projects')}
-              className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <FolderOpen className="w-5 h-5" />
-              <span>Proyectos</span>
-            </button>
-            <button
-              onClick={() => router.push('/dashboard/documents')}
-              className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <FileText className="w-5 h-5" />
-              <span>Documentos</span>
-            </button>
-            <button
-              onClick={() => router.push('/dashboard/messages')}
-              className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <MessageSquare className="w-5 h-5" />
-              <span>Mensajes</span>
-            </button>
-            <button
-              onClick={() => router.push('/dashboard/settings')}
-              className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <Settings className="w-5 h-5" />
-              <span>Configuración</span>
-            </button>
-          </nav>
-
-          <div className="p-4 border-t">
-            <Button
-              onClick={() => signOut({ callbackUrl: "/" })}
-              variant="ghost"
-              className="w-full flex items-center space-x-3 text-red-600 hover:bg-red-50"
-            >
-              <LogOut className="w-5 h-5" />
-              <span>Cerrar Sesion</span>
-            </Button>
-          </div>
+    <>
+      {/* Page Header */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="px-6 py-4">
+          <h1 className="text-2xl font-bold text-gray-900">Análisis de Rentabilidad</h1>
         </div>
-      </aside>
+      </div>
 
-      {/* Main Content */}
-      <div className="lg:ml-64">
-        {/* Header */}
-        <header className="bg-white shadow-sm sticky top-0 z-40">
-          <div className="flex items-center justify-between px-6 py-4">
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="lg:hidden"
-            >
-              {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
-            <h1 className="text-2xl font-bold text-gray-900">Analisis de Rentabilidad</h1>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">{(session.user as any).company}</span>
-            </div>
-          </div>
-        </header>
-
-        {/* Content */}
-        <main className="p-6">
+      {/* Content */}
+      <div className="p-6">
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <StatCard
@@ -356,9 +280,8 @@ export default function DashboardPage() {
               </table>
             </div>
           </div>
-        </main>
       </div>
-    </div>
+    </>
   );
 }
 

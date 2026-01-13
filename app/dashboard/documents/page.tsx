@@ -124,61 +124,32 @@ export default function DocumentsPage() {
     setUploading(true);
 
     try {
-      // 1. Obtener URL presignada
-      const presignedResponse = await fetch('/api/documents/presigned', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fileName: uploadData.file.name,
-          contentType: uploadData.file.type,
-          isPublic: false,
-        }),
-      });
-
-      if (!presignedResponse.ok) {
-        throw new Error('Error al obtener URL de subida');
+      // Crear FormData para enviar el archivo
+      const formData = new FormData();
+      formData.append('file', uploadData.file);
+      formData.append('type', uploadData.type);
+      if (uploadData.projectId) {
+        formData.append('projectId', uploadData.projectId);
       }
 
-      const { uploadUrl, cloud_storage_path } = await presignedResponse.json();
-
-      // 2. Subir archivo a S3
-      const uploadResponse = await fetch(uploadUrl, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': uploadData.file.type,
-        },
-        body: uploadData.file,
+      // Subir archivo al servidor
+      const uploadResponse = await fetch('/api/documents/upload', {
+        method: 'POST',
+        body: formData,
       });
 
       if (!uploadResponse.ok) {
-        throw new Error('Error al subir archivo a S3');
-      }
-
-      // 3. Guardar metadata en base de datos
-      const metadataResponse = await fetch('/api/documents', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: uploadData.file.name,
-          type: uploadData.type,
-          cloud_storage_path,
-          isPublic: false,
-          projectId: uploadData.projectId || null,
-          fileSize: uploadData.file.size,
-        }),
-      });
-
-      if (!metadataResponse.ok) {
-        throw new Error('Error al guardar metadata del documento');
+        const error = await uploadResponse.json();
+        throw new Error(error.error || 'Error al subir archivo');
       }
 
       toast.success('Documento subido correctamente');
       setIsDialogOpen(false);
       resetForm();
       fetchDocuments();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error al subir documento:', error);
-      toast.error('Error al subir documento');
+      toast.error(error.message || 'Error al subir documento');
     } finally {
       setUploading(false);
     }
@@ -186,18 +157,11 @@ export default function DocumentsPage() {
 
   const handleDownload = async (document: Document) => {
     try {
-      const response = await fetch(`/api/documents/download?id=${document.id}`);
-      if (!response.ok) {
-        throw new Error('Error al obtener URL de descarga');
-      }
-
-      const { downloadUrl, name } = await response.json();
-
-      // Crear elemento <a> temporal para descargar
+      // Para archivos locales, simplemente abrimos la URL directamente
       const link = window.document.createElement('a');
-      link.href = downloadUrl;
+      link.href = document.cloud_storage_path;
+      link.download = document.name;
       link.target = '_blank';
-      link.download = name;
       window.document.body.appendChild(link);
       link.click();
       window.document.body.removeChild(link);
@@ -325,7 +289,7 @@ export default function DocumentsPage() {
                   disabled={uploading}
                 >
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder="Selecciona un tipo" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="invoice">Factura</SelectItem>
@@ -339,15 +303,15 @@ export default function DocumentsPage() {
               <div className="space-y-2">
                 <Label htmlFor="projectId">Proyecto (opcional)</Label>
                 <Select
-                  value={uploadData.projectId}
-                  onValueChange={(value) => setUploadData({ ...uploadData, projectId: value })}
+                  value={uploadData.projectId || undefined}
+                  onValueChange={(value) => setUploadData({ ...uploadData, projectId: value === 'none' ? '' : value })}
                   disabled={uploading}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Sin asignar" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Sin asignar</SelectItem>
+                    <SelectItem value="none">Sin asignar</SelectItem>
                     {projects.map((project) => (
                       <SelectItem key={project.id} value={project.id}>
                         {project.name}
