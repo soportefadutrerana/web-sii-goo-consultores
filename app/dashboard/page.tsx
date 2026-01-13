@@ -290,7 +290,7 @@ export default function DashboardPage() {
                     labelLine={false}
                     label={({ name, percent, value }) => {
                       const percentage = ((percent || 0) * 100).toFixed(1);
-                      return `${name.split(' (')[0]}: ${percentage}%`;
+                      return `${(name || '').split(' (')[0]}: ${percentage}%`;
                     }}
                     outerRadius={110}
                     innerRadius={40}
