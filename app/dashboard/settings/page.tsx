@@ -132,11 +132,11 @@ export default function SettingsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-gray-600">Nombre Completo</label>
-                  <p className="text-lg text-gray-900 mt-1">{userData.name}</p>
+                  <p className="text-lg text-gray-900 mt-1">{userData?.name}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-600">Correo Electrónico</label>
-                  <p className="text-lg text-gray-900 mt-1">{userData.email}</p>
+                  <p className="text-lg text-gray-900 mt-1">{userData?.email}</p>
                 </div>
               </div>
 
@@ -144,13 +144,13 @@ export default function SettingsPage() {
                 <div>
                   <label className="text-sm font-medium text-gray-600">Empresa</label>
                   <p className="text-lg text-gray-900 mt-1">
-                    {userData.company || <span className="text-gray-400">No especificada</span>}
+                    {userData?.company || <span className="text-gray-400">No especificada</span>}
                   </p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-600">Teléfono</label>
                   <p className="text-lg text-gray-900 mt-1">
-                    {userData.phone || <span className="text-gray-400">No especificado</span>}
+                    {userData?.phone || <span className="text-gray-400">No especificado</span>}
                   </p>
                 </div>
               </div>
@@ -160,13 +160,13 @@ export default function SettingsPage() {
                   <label className="text-sm font-medium text-gray-600">Rol</label>
                   <p className="text-lg text-gray-900 mt-1">
                     <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                      {getRoleName(userData.role)}
+                      {getRoleName(userData?.role || '')}
                     </span>
                   </p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-600">Miembro Desde</label>
-                  <p className="text-lg text-gray-900 mt-1">{formatDate(userData.createdAt)}</p>
+                  <p className="text-lg text-gray-900 mt-1">{formatDate(userData?.createdAt || '')}</p>
                 </div>
               </div>
             </div>
@@ -217,7 +217,7 @@ export default function SettingsPage() {
                     <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
                     Sistema de mensajería con tu gestor
                   </li>
-                  {(userData.role === 'gestor' || userData.role === 'admin') && (
+                  {(userData?.role === 'gestor' || userData?.role === 'admin') && (
                     <>
                       <li className="flex items-center">
                         <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>

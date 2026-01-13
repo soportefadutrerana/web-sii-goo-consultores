@@ -61,11 +61,13 @@ export default function ContactMessagesPage() {
   };
 
   const handleViewMessage = async (message: ContactMessage) => {
+    console.log('handleViewMessage called for message:', message.id, 'leido:', message.leido);
     setSelectedMessage(message);
     setIsDialogOpen(true);
 
     // Marcar como leído si no está leído
     if (!message.leido) {
+      console.log('Attempting to mark message as read...');
       try {
         const response = await fetch('/api/contact', {
           method: 'PUT',
@@ -73,16 +75,28 @@ export default function ContactMessagesPage() {
           body: JSON.stringify({ id: message.id }),
         });
 
+        console.log('API response status:', response.status);
+        
         if (response.ok) {
-          setMessages(messages.map(m =>
-            m.id === message.id ? { ...m, leido: true } : m
-          ));
+          console.log('Message marked as read successfully');
+          // Actualizar el estado local inmediatamente
+          setMessages(prevMessages => 
+            prevMessages.map(m =>
+              m.id === message.id ? { ...m, leido: true } : m
+            )
+          );
           // Disparar evento para actualizar el contador en el sidebar
           window.dispatchEvent(new Event('unread-messages-changed'));
+        } else {
+          console.error('Error al marcar mensaje como leído:', response.status);
+          const errorData = await response.json();
+          console.error('Error response:', errorData);
         }
       } catch (error) {
         console.error('Error al marcar mensaje como leído:', error);
       }
+    } else {
+      console.log('Message already marked as read');
     }
   };
 
