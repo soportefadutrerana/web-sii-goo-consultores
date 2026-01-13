@@ -1,54 +1,62 @@
+'use client';
+
 import Link from 'next/link';
-import { FileText, Calculator, Building2 } from 'lucide-react';
+import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 
 export default function Navbar() {
+  const pathname = usePathname();
+
+  const isActive = (path: string) => pathname === path;
+
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200 shadow-sm">
-      <div className="max-w-6xl mx-auto px-6">
-        <div className="flex items-center justify-between h-16">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link href="#hero" className="flex items-center space-x-2 group">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-md group-hover:scale-105 transition-transform">
-              SG
+          <Link href="/" className="flex items-center space-x-3 group">
+            <div className="relative w-14 h-14 flex-shrink-0">
+              <Image
+                src="/logo.png"
+                alt="Sii Goo Consultores"
+                fill
+                className="object-contain drop-shadow-sm"
+                priority
+              />
             </div>
-            <div className="flex flex-col">
-              <span className="text-lg font-bold text-gray-900 leading-none">SIi Goo</span>
-              <span className="text-xs text-gray-600 leading-none">Consultores</span>
+            <div className="hidden sm:flex flex-col">
+              <span className="text-xl font-bold text-gray-900">
+                Sii Goo
+              </span>
+              <span className="text-xs text-gray-500 font-medium tracking-wide">
+                CONSULTORES
+              </span>
             </div>
           </Link>
 
           {/* Navigation Links */}
-          <div className="hidden md:flex items-center space-x-1">
-            <NavLink href="#servicios" icon={<FileText className="w-4 h-4" />}>
+          <div className="hidden lg:flex items-center space-x-8">
+            <NavLink href="/servicios" isActive={isActive('/servicios')}>
               Servicios
             </NavLink>
-            <NavLink href="#contabilidad-analitica" icon={<Calculator className="w-4 h-4" />}>
+            <NavLink href="/contabilidad-analitica" isActive={isActive('/contabilidad-analitica')}>
               Contabilidad Analítica
             </NavLink>
-            <NavLink href="#reformas" icon={<Building2 className="w-4 h-4" />}>
+            <NavLink href="/reformas" isActive={isActive('/reformas')}>
               Empresas de Reformas
             </NavLink>
-            <Link
-              href="#contacto"
-              className="ml-4 px-4 py-2 text-gray-700 hover:text-blue-600 font-medium transition-colors"
-            >
+            <NavLink href="/contacto" isActive={isActive('/contacto')}>
               Contacto
-            </Link>
-            <Link
-              href="/login"
-              className="ml-2 px-5 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all shadow-md hover:shadow-lg"
-            >
-              Acceso Cliente
-            </Link>
+            </NavLink>
           </div>
 
-          {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center space-x-2">
+          {/* CTA Button */}
+          <div className="flex items-center">
             <Link
               href="/login"
-              className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+              className="px-6 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-700 active:bg-blue-800 transition-colors"
             >
-              Acceso
+              Acceso Cliente
             </Link>
           </div>
         </div>
@@ -57,14 +65,28 @@ export default function Navbar() {
   );
 }
 
-function NavLink({ href, icon, children }: { href: string; icon: React.ReactNode; children: React.ReactNode }) {
+function NavLink({
+  href,
+  children,
+  isActive
+}: {
+  href: string;
+  children: React.ReactNode;
+  isActive: boolean;
+}) {
   return (
     <Link
       href={href}
-      className="flex items-center space-x-1.5 px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+      className={`relative text-sm font-medium transition-colors ${
+        isActive
+          ? 'text-blue-600'
+          : 'text-gray-700 hover:text-gray-900'
+      }`}
     >
-      {icon}
-      <span>{children}</span>
+      {children}
+      {isActive && (
+        <span className="absolute -bottom-[21px] left-0 right-0 h-0.5 bg-blue-600"></span>
+      )}
     </Link>
   );
 }

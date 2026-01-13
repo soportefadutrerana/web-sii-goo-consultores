@@ -117,7 +117,7 @@ export default function EspecializationReformas() {
           {/* CTA */}
           <div className="mt-8 text-center">
             <a
-              href="#contacto"
+              href="/contacto"
               className="inline-block px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl"
             >
               Solicitar Análisis de su Empresa

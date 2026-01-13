@@ -139,7 +139,7 @@ export default function ContabilidadAnalitica() {
               Solicite una consulta gratuita y descubra cómo la contabilidad analítica puede transformar su gestión empresarial
             </p>
             <a
-              href="#contacto"
+              href="/contacto"
               className="inline-block px-8 py-4 bg-white text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition-all shadow-lg hover:shadow-xl"
             >
               Solicitar Consulta Gratuita

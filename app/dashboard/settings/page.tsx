@@ -166,8 +166,8 @@ export default function SettingsPage() {
                   Nuestro equipo está disponible para asistirte con cualquier consulta sobre la plataforma o tus servicios.
                 </p>
                 <div className="space-y-2 text-sm text-blue-900">
-                  <p><strong>Email:</strong> info@siigoo.com</p>
-                  <p><strong>Teléfono:</strong> +34 900 000 000</p>
+                  <p><strong>Email:</strong> info@siigooconsultores.com</p>
+                  <p><strong>Teléfono:</strong> +34 955 387 218</p>
                   <p><strong>Horario:</strong> Lunes a Viernes, 9:00 - 18:00</p>
                 </div>
               </div>
