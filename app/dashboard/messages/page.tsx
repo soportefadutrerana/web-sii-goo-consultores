@@ -52,7 +52,7 @@ export default function MessagesPage() {
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string>('');
   const [currentUserRole, setCurrentUserRole] = useState<string>('');
-
+  const [showConfirmClose, setShowConfirmClose] = useState(false);
   const [formData, setFormData] = useState({
     subject: '',
     content: '',
@@ -172,6 +172,27 @@ export default function MessagesPage() {
     });
   };
 
+const handleIntentarCerrar = (open: boolean) => {
+    if (!open) {
+      // Si está intentando cerrar, comprobamos si ha escrito algo
+      if (formData.subject !== '' || formData.content !== '' || formData.receiverId !== '') {
+        setShowConfirmClose(true); // Si hay texto, mostramos confirmación
+      } else {
+        // Si está vacío, cerramos normal
+        setIsDialogOpen(false);
+        resetForm();
+      }
+    } else {
+      setIsDialogOpen(true);
+    }
+  };
+
+  const confirmarCierre = () => {
+    setShowConfirmClose(false);
+    setIsDialogOpen(false);
+    resetForm();
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('es-ES', {
       year: 'numeric',
@@ -211,10 +232,7 @@ export default function MessagesPage() {
             )}
           </p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={(open) => {
-          setIsDialogOpen(open);
-          if (!open) resetForm();
-        }}>
+        <Dialog open={isDialogOpen} onOpenChange={handleIntentarCerrar}>
           <DialogTrigger asChild>
             <Button className="bg-blue-600 hover:bg-blue-700">
               <Send className="w-4 h-4 mr-2" />
@@ -282,13 +300,11 @@ export default function MessagesPage() {
               </div>
 
               <div className="flex justify-end space-x-2 pt-4">
-                <Button
+               <Button
                   type="button"
                   variant="outline"
-                  onClick={() => {
-                    setIsDialogOpen(false);
-                    resetForm();
-                  }}
+                  className='hover:bg-red-500 hover:text-white'
+                  onClick={() => handleIntentarCerrar(false)}
                 >
                   Cancelar
                 </Button>
@@ -297,6 +313,32 @@ export default function MessagesPage() {
                 </Button>
               </div>
             </form>
+          </DialogContent>
+        </Dialog>
+        //Añadido dialog para cuando el usuario haya escrito algo y le dé al botón de cancelar, tenga que confirmar el cierre.
+        <Dialog open={showConfirmClose} onOpenChange={setShowConfirmClose}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>¿Descartar mensaje?</DialogTitle>
+              <DialogDescription>
+                Si sales ahora, perderás todo lo que has escrito. ¿Estás seguro de que quieres salir?
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex justify-end space-x-2 mt-4">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowConfirmClose(false)}
+              >
+                No, seguir escribiendo
+              </Button>
+              <Button 
+                variant="destructive" 
+                className="bg-red-600 hover:bg-red-700 text-white"
+                onClick={confirmarCierre}
+              >
+                Sí, salir
+              </Button>
+            </div>
           </DialogContent>
         </Dialog>
       </div>
