@@ -10,9 +10,9 @@ export default function Footer() {
           {/* Company Info */}
           <div className="lg:col-span-2">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="relative w-12 h-12 bg-white rounded-lg p-1.5 flex-shrink-0">
+              <div className="relative w-12 h-12 flex-shrink-0 rounded-lg overflow-hidden">
                 <Image
-                  src="/logo1.jpeg"
+                  src="/logo.png"
                   alt="Sii Goo Consultores"
                   fill
                   className="object-contain"

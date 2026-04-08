@@ -20,9 +20,9 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-3 group">
-            <div className="relative w-14 h-14 flex-shrink-0">
+            <div className="relative w-28 h-28 flex-shrink-0">
               <Image
-                src="/logo.png"
+                src="/logoRecortado.png"
                 alt="Sii Goo Consultores"
                 fill
                 className="object-contain drop-shadow-sm"

@@ -135,15 +135,16 @@ export default function ContactMessagesPage() {
       {/* Dialog para ver mensaje completo */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
+         <DialogHeader>
             <DialogTitle className="flex items-center justify-between">
               <span>Mensaje de {selectedMessage?.nombre}</span>
+              {/* Le añadimos mr-8 (margin-right) a los dos Badges para separarlos de la X */}
               {selectedMessage?.leido ? (
-                <Badge variant="outline" className="text-green-600 border-green-600">
+                <Badge variant="outline" className="text-green-600 border-green-600 mr-8">
                   Leído
                 </Badge>
               ) : (
-                <Badge className="bg-blue-600">Nuevo</Badge>
+                <Badge className="bg-blue-600 mr-8">Nuevo</Badge>
               )}
             </DialogTitle>
             <DialogDescription>
