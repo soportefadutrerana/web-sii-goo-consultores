@@ -314,8 +314,8 @@ const handleIntentarCerrar = (open: boolean) => {
               </div>
             </form>
           </DialogContent>
+                  {/* Añadido dialog para cuando el usuario haya escrito algo y le dé al botón de cancelar, tenga que confirmar el cierre. */}
         </Dialog>
-        //Añadido dialog para cuando el usuario haya escrito algo y le dé al botón de cancelar, tenga que confirmar el cierre.
         <Dialog open={showConfirmClose} onOpenChange={setShowConfirmClose}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
