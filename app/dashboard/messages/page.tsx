@@ -222,14 +222,11 @@ const handleIntentarCerrar = (open: boolean) => {
 
   return (
     <div className="container mx-auto p-6 max-w-7xl">
-      <div className="flex justify-between items-center mb-6">
+     <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Mensajería</h1>
           <p className="text-gray-600 mt-1">
             Comunícate con tu gestor o clientes
-            {unreadCount > 0 && (
-              <Badge className="ml-2 bg-red-500">{unreadCount} no leído{unreadCount !== 1 ? 's' : ''}</Badge>
-            )}
           </p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={handleIntentarCerrar}>
@@ -371,6 +368,11 @@ const handleIntentarCerrar = (open: boolean) => {
             <CardTitle className="flex items-center">
               <Mail className="w-5 h-5 mr-2 text-blue-600" />
               Mensajes Recibidos
+              {unreadCount > 0 && (
+                <Badge className="ml-3 bg-red-500 text-sm font-normal">
+                  {unreadCount} no leído{unreadCount !== 1 ? 's' : ''}
+                </Badge>
+              )}
             </CardTitle>
             <CardDescription>
               {receivedMessages.length} mensaje{receivedMessages.length !== 1 ? 's' : ''}
