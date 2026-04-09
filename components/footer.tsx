@@ -69,7 +69,7 @@ export default function Footer() {
             <div className="flex items-center space-x-4">
               <SocialLink href="#" icon={<Linkedin className="w-5 h-5" />} label="LinkedIn" />
               <SocialLink href="#" icon={<Facebook className="w-5 h-5" />} label="Facebook" />
-              <SocialLink href="#" icon={<Twitter className="w-5 h-5" />} label="Twitter" />
+              <SocialLink href="#" icon={<XLogo className="w-5 h-5" />} label="Twitter" />
             </div>
           </div>
         </div>
@@ -98,5 +98,18 @@ function SocialLink({ href, icon, label }: { href: string; icon: React.ReactNode
     >
       {icon}
     </a>
+  );
+}
+//Añadido logo de X (Antes twitter)
+function XLogo({ className }: { className?: string }) {
+  return (
+    <svg 
+      xmlns="http://www.w3.org/2000/svg" 
+      viewBox="0 0 24 24" 
+      fill="currentColor" 
+      className={className}
+    >
+      <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z" />
+    </svg>
   );
 }

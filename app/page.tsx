@@ -34,7 +34,14 @@ export default function Home() {
   return (
     <main className="min-h-screen">
       <Navbar />
-      <Hero />
+      
+      {/* Contenedor relativo para el Hero y su difuminado */}
+      <div className="relative">
+        <Hero />
+        {/* El degradado mágico: va de transparente a blanco puro para fundirse con About */}
+        <div className="absolute bottom-0 left-0 w-full h-24 sm:h-32 md:h-2 bg-gradient-to-t from-gray-50 to-transparent pointer-events-none z-10"></div>
+      </div>
+
       <About />
 
       {/* Services Overview with Links */}
