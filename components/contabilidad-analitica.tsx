@@ -88,7 +88,7 @@ export default function ContabilidadAnalitica() {
 
             {/* Key Benefits */}
             <div className="bg-white rounded-xl p-6 shadow-soft">
-              <h4 className="text-xl font-bold text-gray-900 mb-4">Beneficios Clave:</h4>
+              <h4 className="text-xl font-bold text-gray-900 mb-4 text-center">Beneficios Clave</h4>
               <div className="grid sm:grid-cols-2 gap-3">
                 {benefits?.slice(0, 4)?.map((benefit, index) => (
                   <div key={index} className="flex items-start space-x-2">

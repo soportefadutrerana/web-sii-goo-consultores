@@ -93,10 +93,10 @@ export default function EspecializationReformas() {
         </div>
 
         {/* Benefits Section */}
-        <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 md:p-12 shadow-2xl">
+        <div className="bg-gradient-to-br from-blue-950 to-blue-700 rounded-2xl p-8 md:p-12 shadow-2xl">
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div>
-              <h3 className="text-3xl font-bold text-white mb-4">
+              <h3 className="text-3xl font-bold text-white mb-4 text-center">
                 ¿Por qué las empresas de reformas nos eligen?
               </h3>
               <p className="text-gray-300 text-lg mb-6">
