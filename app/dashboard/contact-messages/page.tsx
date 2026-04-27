@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Mail, MailOpen, Phone, Building2, Calendar, User, X } from 'lucide-react';
+import { Mail, MailOpen, Phone, Building2, Calendar, User, X, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface ContactMessage {
@@ -61,50 +61,34 @@ export default function ContactMessagesPage() {
   };
 
   const handleViewMessage = async (message: ContactMessage) => {
-    console.log('handleViewMessage called for message:', message.id, 'leido:', message.leido);
     setSelectedMessage(message);
     setIsDialogOpen(true);
 
-    // Marcar como leído si no está leído
     if (!message.leido) {
-      console.log('Attempting to mark message as read...');
       try {
         const response = await fetch('/api/contact', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id: message.id }),
         });
-
-        console.log('API response status:', response.status);
         
         if (response.ok) {
-          console.log('Message marked as read successfully');
-          // Actualizar el estado local inmediatamente
           setMessages(prevMessages => 
-            prevMessages.map(m =>
-              m.id === message.id ? { ...m, leido: true } : m
-            )
+            prevMessages.map(m => m.id === message.id ? { ...m, leido: true } : m)
           );
-          // Disparar evento para actualizar el contador en el sidebar
           window.dispatchEvent(new Event('unread-messages-changed'));
-        } else {
-          console.error('Error al marcar mensaje como leído:', response.status);
-          const errorData = await response.json();
-          console.error('Error response:', errorData);
         }
       } catch (error) {
-        console.error('Error al marcar mensaje como leído:', error);
+        console.error('Error al marcar como leído:', error);
       }
-    } else {
-      console.log('Message already marked as read');
     }
   };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'long',
       day: 'numeric',
+      month: 'long',
+      year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
     });
@@ -132,85 +116,116 @@ export default function ContactMessagesPage() {
         </p>
       </div>
 
-      {/* Dialog para ver mensaje completo */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-         <DialogHeader>
-            <DialogTitle className="flex items-center justify-between">
-              <span>Mensaje de {selectedMessage?.nombre}</span>
-              {/* Le añadimos mr-8 (margin-right) a los dos Badges para separarlos de la X */}
-              {selectedMessage?.leido ? (
-                <Badge variant="outline" className="text-green-600 border-green-600 mr-8">
-                  Leído
-                </Badge>
-              ) : (
-                <Badge className="bg-blue-600 mr-8">Nuevo</Badge>
-              )}
-            </DialogTitle>
-            <DialogDescription>
-              Recibido el {selectedMessage && formatDate(selectedMessage.createdAt)}
-            </DialogDescription>
-          </DialogHeader>
-          
+        <DialogContent className="max-w-3xl p-0 overflow-hidden border-none">
           {selectedMessage && (
-            <div className="space-y-6 py-4">
-              {/* Información del contacto */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                  <User className="w-5 h-5 text-gray-500" />
-                  <div>
-                    <p className="text-sm text-gray-500">Nombre</p>
-                    <p className="font-semibold text-gray-900">{selectedMessage.nombre}</p>
+            <div className="flex flex-col w-full">
+              {/* CABECERA DEGRADADA PROFESIONAL */}
+              <div className="bg-gradient-to-r from-blue-900 via-blue-700 to-indigo-800 p-8 text-white relative">
+                <div className="flex items-center space-x-3 mb-2">
+                  <div className="p-2 bg-white/10 rounded-lg">
+                    <Mail className="w-6 h-6 text-blue-100" />
+                  </div>
+                  <h2 className="text-2xl font-bold tracking-tight">Nuevo Mensaje de Contacto</h2>
+                </div>
+                <p className="text-blue-100/80 text-sm ml-12">
+                  Recibido el {formatDate(selectedMessage.createdAt)}
+                </p>
+                {!selectedMessage.leido && (
+                  <Badge className="absolute top-8 right-8 bg-green-500 hover:bg-green-500 border-none px-3 shadow-lg">
+                    NUEVO
+                  </Badge>
+                )}
+              </div>
+
+              {/* CUERPO CON GRID DE INFORMACIÓN */}
+              <div className="p-8 bg-white space-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Nombre */}
+                  <div className="flex items-start space-x-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
+                    <div className="p-2 bg-blue-100 rounded-full text-blue-600">
+                      <User className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Nombre</span>
+                      <p className="font-bold text-gray-900">{selectedMessage.nombre}</p>
+                    </div>
+                  </div>
+
+                  {/* Email */}
+                  <div className="flex items-start space-x-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
+                    <div className="p-2 bg-blue-100 rounded-full text-blue-600">
+                      <Mail className="w-5 h-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Email</span>
+                      <p className="font-bold text-blue-600 truncate">{selectedMessage.email}</p>
+                    </div>
+                  </div>
+
+                  {/* Teléfono */}
+                  <div className="flex items-start space-x-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
+                    <div className="p-2 bg-blue-100 rounded-full text-blue-600">
+                      <Phone className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Teléfono</span>
+                      <p className="font-bold text-gray-900">{selectedMessage.telefono || '—'}</p>
+                    </div>
+                  </div>
+
+                  {/* Empresa */}
+                  <div className="flex items-start space-x-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
+                    <div className="p-2 bg-blue-100 rounded-full text-blue-600">
+                      <Building2 className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Empresa</span>
+                      <p className="font-bold text-gray-900">{selectedMessage.empresa || 'Particular'}</p>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                  <Mail className="w-5 h-5 text-gray-500" />
-                  <div>
-                    <p className="text-sm text-gray-500">Email</p>
-                    <a href={`mailto:${selectedMessage.email}`} className="font-semibold text-blue-600 hover:underline">
-                      {selectedMessage.email}
+
+                {/* Servicio de interés */}
+                <div className="p-5 bg-blue-50/50 rounded-xl border border-blue-100">
+                  <span className="block text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-2">Servicio de interés</span>
+                  <Badge className="bg-blue-600 text-sm py-1 px-4">{selectedMessage.servicio}</Badge>
+                </div>
+
+                {/* Mensaje */}
+                <div className="relative">
+                  <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Mensaje</span>
+                  <div className="p-6 bg-gray-50 rounded-xl border border-gray-100 text-gray-700 leading-relaxed italic shadow-inner">
+                    {selectedMessage.mensaje}
+                  </div>
+                  <div className="absolute left-0 top-8 bottom-0 w-1 bg-blue-600 rounded-full"></div>
+                </div>
+
+                {/* BOTÓN RESPONDER */}
+                <div className="pt-4 flex justify-center">
+                  <Button 
+                    asChild
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-6 px-10 rounded-xl shadow-xl transition-all hover:scale-105"
+                  >
+                    <a href={`mailto:${selectedMessage.email}?subject=RE: Consulta sobre ${selectedMessage.servicio}`}>
+                      Responder por Email
+                      <ArrowRight className="ml-2 w-5 h-5" />
                     </a>
-                  </div>
+                  </Button>
                 </div>
-                {selectedMessage.telefono && (
-                  <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                    <Phone className="w-5 h-5 text-gray-500" />
-                    <div>
-                      <p className="text-sm text-gray-500">Teléfono</p>
-                      <a href={`tel:${selectedMessage.telefono}`} className="font-semibold text-gray-900 hover:underline">
-                        {selectedMessage.telefono}
-                      </a>
-                    </div>
-                  </div>
-                )}
-                {selectedMessage.empresa && (
-                  <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                    <Building2 className="w-5 h-5 text-gray-500" />
-                    <div>
-                      <p className="text-sm text-gray-500">Empresa</p>
-                      <p className="font-semibold text-gray-900">{selectedMessage.empresa}</p>
-                    </div>
-                  </div>
-                )}
               </div>
 
-              {/* Servicio de interés */}
-              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <p className="text-sm text-gray-500 mb-1">Servicio de interés</p>
-                <Badge className="bg-blue-600">{selectedMessage.servicio}</Badge>
-              </div>
-
-              {/* Mensaje */}
-              <div className="p-4 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-500 mb-2">Mensaje</p>
-                <p className="text-gray-900 whitespace-pre-wrap">{selectedMessage.mensaje}</p>
+              {/* PIE DE PÁGINA */}
+              <div className="bg-gray-50 p-4 border-t border-gray-100 text-center">
+                <p className="text-[10px] text-gray-400 font-mono tracking-tighter">
+                  ID DEL CONTACTO: {selectedMessage.id} | RESPONDER A: {selectedMessage.email}
+                </p>
               </div>
             </div>
           )}
         </DialogContent>
       </Dialog>
 
-      {/* Lista de mensajes */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
@@ -235,7 +250,7 @@ export default function ContactMessagesPage() {
                   className={`p-4 rounded-lg border cursor-pointer hover:shadow-md transition-all ${
                     message.leido 
                       ? 'bg-white border-gray-200' 
-                      : 'bg-blue-50 border-blue-200'
+                      : 'bg-blue-50 border-blue-200 shadow-sm'
                   }`}
                   onClick={() => handleViewMessage(message)}
                 >
@@ -247,36 +262,28 @@ export default function ContactMessagesPage() {
                         ) : (
                           <Mail className="w-4 h-4 text-blue-600 flex-shrink-0" />
                         )}
-                        <h3 className="font-semibold text-gray-900 truncate">
+                        <h3 className={`truncate ${message.leido ? 'font-medium text-gray-700' : 'font-bold text-gray-900'}`}>
                           {message.nombre}
                         </h3>
                         {!message.leido && (
-                          <Badge className="bg-blue-600 text-xs">Nuevo</Badge>
+                          <Badge className="bg-blue-600 text-[10px] h-5">Nuevo</Badge>
                         )}
                       </div>
                       <div className="space-y-1 text-sm">
                         <p className="text-gray-600 truncate">
                           <span className="font-medium">Email:</span> {message.email}
                         </p>
-                        {message.empresa && (
-                          <p className="text-gray-600 truncate">
-                            <span className="font-medium">Empresa:</span> {message.empresa}
-                          </p>
-                        )}
                         <p className="text-gray-600">
                           <span className="font-medium">Servicio:</span>{' '}
-                          <Badge variant="outline" className="ml-1">{message.servicio}</Badge>
-                        </p>
-                        <p className="text-gray-600 line-clamp-2 mt-2">
-                          {message.mensaje}
+                          <Badge variant="secondary" className="ml-1 text-[10px]">{message.servicio}</Badge>
                         </p>
                       </div>
                     </div>
-                    <div className="ml-4 flex flex-col items-end space-y-2 flex-shrink-0">
-                      <div className="flex items-center space-x-1 text-xs text-gray-500">
-                        <Calendar className="w-3 h-3" />
-                        <span>{formatDate(message.createdAt)}</span>
-                      </div>
+                    <div className="ml-4 flex flex-col items-end flex-shrink-0">
+                      <span className="text-[10px] text-gray-400 flex items-center">
+                        <Calendar className="w-3 h-3 mr-1" />
+                        {new Date(message.createdAt).toLocaleDateString()}
+                      </span>
                     </div>
                   </div>
                 </div>

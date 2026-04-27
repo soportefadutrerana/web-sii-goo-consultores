@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Send, CheckCircle2, Loader2 } from 'lucide-react';
+import { Send, Check, Loader2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface FormData {
@@ -66,7 +66,6 @@ export default function ContactForm() {
         throw new Error(errorData.error || 'Error al enviar el formulario');
       }
 
-      const result = await response.json();
       setIsSuccess(true);
       setFormData({
         nombre: '',
@@ -77,10 +76,6 @@ export default function ContactForm() {
         mensaje: ''
       });
 
-      // Reset success message after 5 seconds
-      setTimeout(() => {
-        setIsSuccess(false);
-      }, 5000);
     } catch (err) {
       setError(err instanceof Error ? err?.message : 'Error al enviar el formulario. Por favor, inténtelo de nuevo.');
     } finally {
@@ -90,34 +85,62 @@ export default function ContactForm() {
 
   return (
     <div className="relative">
+      {/* MODAL DE ÉXITO ESTILO TARJETA */}
       <AnimatePresence>
         {isSuccess && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="absolute inset-0 z-10 flex items-center justify-center bg-white/95 backdrop-blur-sm rounded-2xl"
-          >
-            <div className="text-center p-8">
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-              >
-                <CheckCircle2 className="w-20 h-20 text-green-500 mx-auto mb-4" />
-              </motion.div>
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center relative overflow-hidden"
+            >
+              {/* Línea decorativa superior */}
+              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-400 to-emerald-500" />
+              
+              {/* Icono de Check Circular Animado */}
+              <div className="flex justify-center mb-6 mt-2">
+                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
+                  <motion.div 
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: 'spring', damping: 12, stiffness: 200 }}
+                    className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center shadow-lg shadow-green-200"
+                  >
+                    <Check className="w-10 h-10 text-white" strokeWidth={3} />
+                  </motion.div>
+                </div>
+              </div>
+
+              {/* Textos */}
               <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                ¡Mensaje enviado con éxito!
+                ¡Envío Exitoso!
               </h3>
-              <p className="text-gray-600">
-                Nos pondremos en contacto con usted en breve.
+              <p className="text-gray-500 mb-8 leading-relaxed">
+                Tu mensaje ha sido enviado correctamente. Nos pondremos en contacto contigo lo antes posible.
               </p>
-            </div>
-          </motion.div>
+
+              {/* Botón de Cierre */}
+              <button
+                onClick={() => setIsSuccess(false)}
+                className="w-full py-4 bg-gray-900 text-white font-bold rounded-2xl hover:bg-gray-800 transition-colors shadow-lg shadow-gray-200 active:scale-95 transition-transform"
+              >
+                Entendido
+              </button>
+
+              {/* Botón X superior derecho */}
+              <button 
+                onClick={() => setIsSuccess(false)}
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6 text-left">
         {/* Name and Email */}
         <div className="grid md:grid-cols-2 gap-6">
           <div>
@@ -128,7 +151,7 @@ export default function ContactForm() {
               type="text"
               id="nombre"
               name="nombre"
-              value={formData?.nombre ?? ''}
+              value={formData.nombre}
               onChange={handleChange}
               required
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
@@ -143,7 +166,7 @@ export default function ContactForm() {
               type="email"
               id="email"
               name="email"
-              value={formData?.email ?? ''}
+              value={formData.email}
               onChange={handleChange}
               required
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
@@ -162,7 +185,7 @@ export default function ContactForm() {
               type="tel"
               id="telefono"
               name="telefono"
-              value={formData?.telefono ?? ''}
+              value={formData.telefono}
               onChange={handleChange}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               placeholder="+34 600 000 000"
@@ -176,7 +199,7 @@ export default function ContactForm() {
               type="text"
               id="empresa"
               name="empresa"
-              value={formData?.empresa ?? ''}
+              value={formData.empresa}
               onChange={handleChange}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               placeholder="Nombre de su empresa"
@@ -192,17 +215,17 @@ export default function ContactForm() {
           <select
             id="servicio"
             name="servicio"
-            value={formData?.servicio ?? ''}
+            value={formData.servicio}
             onChange={handleChange}
             required
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none bg-white"
           >
             <option value="">Seleccione un servicio</option>
-            {servicios?.map((servicio) => (
-              <option key={servicio} value={servicio ?? ''}>
+            {servicios.map((servicio) => (
+              <option key={servicio} value={servicio}>
                 {servicio}
               </option>
-            )) ?? []}
+            ))}
           </select>
         </div>
 
@@ -214,7 +237,7 @@ export default function ContactForm() {
           <textarea
             id="mensaje"
             name="mensaje"
-            value={formData?.mensaje ?? ''}
+            value={formData.mensaje}
             onChange={handleChange}
             required
             rows={5}

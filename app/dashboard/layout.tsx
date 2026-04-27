@@ -4,11 +4,12 @@ import { useEffect, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
 import {
-  Building2, LogOut, Menu, X, Home, FolderOpen, MessageSquare, Settings, FileText, Mail
+  Building2, LogOut, Menu, X, Home, FolderOpen, MessageSquare, Settings, FileText, Mail, Globe, Users
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
+import Link from 'next/link';
 
 export default function DashboardLayout({
   children,
@@ -58,15 +59,12 @@ export default function DashboardLayout({
   // Cargar el contador inicial y actualizar periódicamente
   useEffect(() => {
     if (userRole === 'admin' || userRole === 'gestor') {
-      // Carga inicial
       fetchUnreadCount();
 
-      // Actualizar cada 60 segundos (reducido de 30 para mejor rendimiento)
       const interval = setInterval(() => {
         fetchUnreadCount();
       }, 60000);
 
-      // Escuchar evento de cambio en mensajes no leídos
       const handleUnreadChange = () => {
         fetchUnreadCount();
       };
@@ -249,23 +247,43 @@ export default function DashboardLayout({
               </div>
             </div>
 
-            {/* Settings Section */}
+            {/* Settings & System Section */}
             <div>
               <p className="px-4 mb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">Sistema</p>
-              <button
-                onClick={() => {
-                  router.push('/dashboard/settings');
-                  setSidebarOpen(false);
-                }}
-                className={`group w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 ${
-                  isActive('/dashboard/settings')
-                    ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/30'
-                    : 'text-slate-300 hover:bg-slate-800/50 hover:text-white'
-                }`}
-              >
-                <Settings className={`w-5 h-5 transition-transform duration-200 ${isActive('/dashboard/settings') ? '' : 'group-hover:scale-110'}`} />
-                <span>Configuración</span>
-              </button>
+              <div className="space-y-1">
+                <button
+                  onClick={() => {
+                    router.push('/dashboard/settings');
+                    setSidebarOpen(false);
+                  }}
+                  className={`group w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 ${
+                    isActive('/dashboard/settings')
+                      ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/30'
+                      : 'text-slate-300 hover:bg-slate-800/50 hover:text-white'
+                  }`}
+                >
+                  <Settings className={`w-5 h-5 transition-transform duration-200 ${isActive('/dashboard/settings') ? '' : 'group-hover:scale-110'}`} />
+                  <span>Configuración</span>
+                </button>
+
+                {/* BOTÓN GESTIÓN DE USUARIOS (Solo Admin) */}
+                {userRole === 'admin' && (
+                  <button
+                    onClick={() => {
+                      router.push('/dashboard/users');
+                      setSidebarOpen(false);
+                    }}
+                    className={`group w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 ${
+                      isActive('/dashboard/users')
+                        ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/30'
+                        : 'text-slate-300 hover:bg-slate-800/50 hover:text-white'
+                    }`}
+                  >
+                    <Users className={`w-5 h-5 transition-transform duration-200 ${isActive('/dashboard/users') ? '' : 'group-hover:scale-110'}`} />
+                    <span>Usuarios</span>
+                  </button>
+                )}
+              </div>
             </div>
           </nav>
 
@@ -302,7 +320,21 @@ export default function DashboardLayout({
               {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
             <div className="flex-1 lg:hidden"></div>
+            
             <div className="flex items-center space-x-4">
+              {/* Botón Editar Web Pública (Solo Admin) */}
+              {userRole === 'admin' && (
+                <Link 
+                  href="/" 
+                  target="_blank" 
+                  className="flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white px-4 py-2 rounded-lg hover:from-orange-600 hover:to-orange-700 transition-all shadow-md hover:shadow-lg font-medium text-sm"
+                >
+                  <Globe className="w-4 h-4" />
+                  <span className="hidden sm:inline">Editar Web Pública</span>
+                </Link>
+              )}
+
+              {/* Company Badge */}
               <div className="hidden sm:flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-100">
                 <Building2 className="w-4 h-4 text-blue-600" />
                 <span className="text-sm font-medium text-gray-700">

@@ -274,7 +274,7 @@ const handleIntentarCerrar = (open: boolean) => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="subject">Asunto *</Label>
+                <Label htmlFor="subject"> Asunto *</Label>
                 <Input
                   id="subject"
                   value={formData.subject}

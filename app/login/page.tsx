@@ -49,7 +49,7 @@ export default function LoginPage() {
         <div className="text-center">
           <Link href="/" className="inline-flex items-center space-x-2 mb-6">
             <Building2 className="w-10 h-10 text-blue-600" />
-            <span className="text-2xl font-bold text-gray-900">SIi Goo</span>
+            <span className="text-2xl font-bold text-gray-900">Sii Goo</span>
           </Link>
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
             Acceso al Portal
