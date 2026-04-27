@@ -3,9 +3,13 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import { Lock } from 'lucide-react';
+import { motion } from 'framer-motion'; // Importamos framer-motion
 
 export default function Navbar() {
   const pathname = usePathname();
+  const { status } = useSession();
 
   const isActive = (path: string) => {
     if (path === '/') {
@@ -20,9 +24,9 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-3 group">
-            <div className="relative w-14 h-14 flex-shrink-0">
+            <div className="relative w-28 h-28 flex-shrink-0">
               <Image
-                src="/logo.png"
+                src="/logoRecortado.png"
                 alt="Sii Goo Consultores"
                 fill
                 className="object-contain drop-shadow-sm"
@@ -30,10 +34,10 @@ export default function Navbar() {
               />
             </div>
             <div className="hidden sm:flex flex-col">
-              <span className="text-xl font-bold text-gray-900">
+              <span className="text-xl font-bold text-gray-900 tracking-tight">
                 Sii Goo
               </span>
-              <span className="text-xs text-gray-500 font-medium tracking-wide">
+              <span className="text-[10px] text-gray-400 font-bold tracking-[0.2em] uppercase">
                 CONSULTORES
               </span>
             </div>
@@ -58,14 +62,22 @@ export default function Navbar() {
             </NavLink>
           </div>
 
-          {/* CTA Button */}
-          <div className="flex items-center">
-            <Link
-              href="/login"
-              className="px-6 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-700 active:bg-blue-800 transition-colors"
-            >
-              Acceso Cliente
-            </Link>
+          {/* CTA / Acceso */}
+          <div className="flex items-center gap-4">
+            {status !== 'authenticated' && (
+              <Link 
+                href="/login" 
+                className="flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-lg text-gray-500 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50/50 transition-all duration-200 group"
+              >
+                <Lock className="w-3.5 h-3.5 text-gray-400 group-hover:text-blue-600" />
+              </Link>
+            )}
+            
+            {status === 'authenticated' && (
+              <div className="px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-bold rounded-full border border-blue-100 uppercase tracking-wider">
+                Modo Editor
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -85,15 +97,26 @@ function NavLink({
   return (
     <Link
       href={href}
-      className={`relative text-sm font-medium transition-colors ${
-        isActive
-          ? 'text-blue-600'
-          : 'text-gray-700 hover:text-gray-900'
+      className={`relative py-1 text-sm font-semibold transition-colors duration-300 group ${
+        isActive ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'
       }`}
     >
       {children}
+
+      {/* Línea de hover: Nace del centro hacia afuera */}
+      <motion.span
+        className="absolute -bottom-1 left-0 h-0.5 bg-blue-600"
+        initial={{ width: 0, left: "50%" }}
+        whileHover={{ width: "100%", left: "0%" }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+      />
+
       {isActive && (
-        <span className="absolute -bottom-[21px] left-0 right-0 h-0.5 bg-blue-600"></span>
+        <motion.span 
+          layoutId="activeLink"
+          className="absolute -bottom-[30px] left-0 right-0 h-0.5 bg-blue-600"
+          transition={{ type: "spring", stiffness: 380, damping: 30 }}
+        />
       )}
     </Link>
   );

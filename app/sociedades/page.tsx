@@ -1,5 +1,4 @@
 import Navbar from "@/components/navbar";
-import Footer from "@/components/footer";
 import Link from "next/link";
 import { Building2, Globe, Shield, TrendingUp, CheckCircle, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -219,7 +218,6 @@ export default function SociedadesPage() {
           </div>
         </section>
       </main>
-      <Footer />
     </>
   );
 }

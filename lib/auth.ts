@@ -2,8 +2,33 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import bcrypt from "bcryptjs";
-import { prisma } from "./db";
+import { prisma } from "./db"; // Si en el futuro te da error, cámbialo por '@/lib/db'
+import { DefaultSession } from "next-auth";
 
+// 1. Ampliamos TypeScript para incluir role, id y company sin errores
+declare module "next-auth" {
+  interface User {
+    role?: string;
+    company?: string | null;
+  }
+  interface Session {
+    user: {
+      id?: string;
+      role?: string;
+      company?: string | null;
+    } & DefaultSession["user"];
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    id?: string;
+    role?: string;
+    company?: string | null;
+  }
+}
+
+// 2. Configuración principal
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
@@ -49,20 +74,21 @@ export const authOptions: NextAuthOptions = {
     signIn: "/login",
     error: "/login",
   },
+  // 👇 3. UN SOLO BLOQUE DE CALLBACKS FUSIONADO 👇
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.role = (user as any).role;
-        token.company = (user as any).company;
+        token.role = user.role;
+        token.company = user.company;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        (session.user as any).id = token.id;
-        (session.user as any).role = token.role;
-        (session.user as any).company = token.company;
+        session.user.id = token.id;
+        session.user.role = token.role;
+        session.user.company = token.company;
       }
       return session;
     },

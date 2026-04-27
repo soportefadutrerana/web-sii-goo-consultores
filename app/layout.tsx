@@ -2,10 +2,19 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
+import { Toaster } from 'sonner';
+import AdminFloatButton from '@/components/admin-float-button';
+import Footer from '@/components/footer';
+
+// Importación de base de datos (según tu export default) y sesión
+import prisma from '@/lib/db'; 
+import { getServerSession } from 'next-auth';
 
 const inter = Inter({ subsets: ['latin'] });
 
+// Forzamos renderizado dinámico para que los cambios en el Footer se vean al instante
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 const metadataBase = process.env.NEXTAUTH_URL 
   ? new URL(process.env.NEXTAUTH_URL) 
@@ -28,11 +37,34 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // 1. Obtenemos la sesión del servidor para el modo administrador
+  const session = await getServerSession();
+
+  // 2. Traemos el contenido de la base de datos para sincronizar el Footer
+  let dbContent: Record<string, string> = {};
+  
+  try {
+    // Buscamos los registros de las páginas donde guardas el contacto
+    const contentData = await prisma.siteContent.findMany({
+      where: {
+        page: { in: ['common', 'contacto', 'servicios'] }
+      }
+    });
+    
+    // Mapeamos el array de SiteContent a un objeto plano { section: content }
+    dbContent = contentData.reduce((acc, item) => {
+      acc[item.section] = item.content;
+      return acc;
+    }, {} as Record<string, string>);
+  } catch (error) {
+    console.error("Error al cargar SiteContent en RootLayout:", error);
+  }
+
   return (
     <html lang="es" className="scroll-smooth">
       <head>
@@ -40,7 +72,22 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <Providers>
+          {/* Contenido principal de la página */}
           {children}
+          
+          {/* El Footer se coloca aquí para que sea global. 
+            Recibe dbContent para estar sincronizado con el Dashboard de contacto.
+          */}
+          <Footer 
+            isAdmin={!!session} 
+            dbContent={dbContent} 
+          />
+          
+          {/* Botón flotante de admin (solo visible si hay sesión) */}
+          <AdminFloatButton />
+          
+          {/* Notificaciones Toaster */}
+          <Toaster position="bottom-right" richColors />
         </Providers>
       </body>
     </html>

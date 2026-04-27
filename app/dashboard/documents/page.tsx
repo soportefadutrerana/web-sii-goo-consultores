@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Upload, Download, Trash2, FileText, File } from 'lucide-react';
+import { Upload, Download, Trash2, FileText, File, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Document {
@@ -49,6 +49,14 @@ export default function DocumentsPage() {
   const [uploading, setUploading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentUserRole, setCurrentUserRole] = useState<string>('');
+
+  //Añadimos filtro para mostrar los proyectos por nombre o fecha
+  const [filterName, setFilterName] = useState('');
+  const [filterDate, setFilterDate] = useState('');
+  
+  const [showMonthPicker, setShowMonthPicker] = useState(false);
+  const [pickerYear, setPickerYear] = useState(new Date().getFullYear());
+  const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 
   const [uploadData, setUploadData] = useState({
     file: null as File | null,
@@ -240,6 +248,22 @@ export default function DocumentsPage() {
 
   const isGestorOrAdmin = currentUserRole === 'gestor' || currentUserRole === 'admin';
 
+const filteredDocuments = documents.filter((doc) => {
+    // Filtro por nombre (y por empresa del cliente si es admin/gestor)
+    const searchString = `${doc.name} ${doc.user?.name || ''} ${doc.user?.company || ''}`.toLowerCase();
+    const matchName = filterName === '' || searchString.includes(filterName.toLowerCase());
+
+    // Filtro por fecha 
+    let matchDate = true;
+    if (filterDate) {
+      const docDate = new Date(doc.createdAt);
+      const docMonth = `${docDate.getFullYear()}-${String(docDate.getMonth() + 1).padStart(2, '0')}`;
+      matchDate = docMonth === filterDate;
+    }
+
+    return matchName && matchDate;
+  });
+
   return (
     <div className="container mx-auto p-6 max-w-7xl">
       <div className="flex justify-between items-center mb-6">
@@ -364,6 +388,77 @@ export default function DocumentsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {/* 👇 BARRA DE FILTROS 👇 */}
+          <div className="flex flex-col sm:flex-row gap-4 mb-6 bg-gray-50/50 p-4 rounded-lg border border-gray-100">
+            <div className="flex-1">
+              <Label htmlFor="filterName" className="mb-2 block text-gray-600">Buscar documento</Label>
+              <Input
+                id="filterName"
+                placeholder="Nombre, cliente o empresa..."
+                value={filterName}
+                onChange={(e) => setFilterName(e.target.value)}
+                className="bg-white h-10"
+              />
+            </div>
+            
+            <div className="w-full sm:w-64 relative">
+              <Label className="mb-2 block text-gray-600">Mes de subida</Label>
+              <button
+                type="button"
+                onClick={() => setShowMonthPicker(!showMonthPicker)}
+                className="w-full h-10 flex items-center justify-between px-3 py-2 border border-gray-300 rounded-md bg-white text-left hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-colors"
+              >
+                <span className={filterDate ? "text-gray-900 font-medium capitalize" : "text-gray-500"}>
+                  {filterDate 
+                    ? new Date(parseInt(filterDate.split('-')[0]), parseInt(filterDate.split('-')[1]) - 1).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })
+                    : "Seleccionar mes..."}
+                </span>
+                <Calendar className="w-4 h-4 text-gray-500" />
+              </button>
+
+              {showMonthPicker && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setShowMonthPicker(false)} />
+                  <div className="absolute top-[72px] left-0 w-64 p-3 bg-white border border-gray-200 rounded-lg shadow-xl z-50">
+                    <div className="flex justify-between items-center mb-4">
+                      <button onClick={() => setPickerYear(y => y - 1)} className="p-1 hover:bg-gray-100 rounded-md text-gray-500 transition-colors">
+                        <ChevronLeft className="w-5 h-5" />
+                      </button>
+                      <span className="font-semibold text-gray-800">{pickerYear}</span>
+                      <button onClick={() => setPickerYear(y => y + 1)} className="p-1 hover:bg-gray-100 rounded-md text-gray-500 transition-colors">
+                        <ChevronRight className="w-5 h-5" />
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      {meses.map((mes, index) => {
+                        const monthValue = `${pickerYear}-${String(index + 1).padStart(2, '0')}`;
+                        const isSelected = filterDate === monthValue;
+                        return (
+                          <button
+                            key={mes}
+                            onClick={() => { setFilterDate(monthValue); setShowMonthPicker(false); }}
+                            className={`py-2 text-sm rounded-md transition-all ${isSelected ? 'bg-blue-600 text-white font-bold shadow-md' : 'hover:bg-blue-50 text-gray-700 hover:text-blue-600 font-medium border border-transparent hover:border-blue-100'}`}
+                          >
+                            {mes}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {(filterName || filterDate) && (
+              <div className="flex items-end">
+                <Button variant="ghost" onClick={() => { setFilterName(''); setFilterDate(''); }} className="h-10 text-red-600 hover:text-red-700 hover:bg-red-50">
+                  Limpiar filtros
+                </Button>
+              </div>
+            )}
+          </div>
+          {/* 👆 FIN BARRA DE FILTROS 👆 */}
+
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
@@ -378,14 +473,17 @@ export default function DocumentsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {documents.length === 0 ? (
+                {/* 👇 AQUI USAMOS filteredDocuments 👇 */}
+                {filteredDocuments.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={isGestorOrAdmin ? 7 : 6} className="text-center py-8 text-gray-500">
-                      No hay documentos subidos. Sube tu primer documento.
+                      {documents.length === 0 
+                        ? "No hay documentos subidos. Sube tu primer documento." 
+                        : "No hay documentos que coincidan con los filtros."}
                     </TableCell>
                   </TableRow>
                 ) : (
-                  documents.map((doc) => (
+                  filteredDocuments.map((doc) => (
                     <TableRow key={doc.id}>
                       <TableCell className="font-medium">
                         <div className="flex items-center">

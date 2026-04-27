@@ -52,7 +52,7 @@ export default function MessagesPage() {
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string>('');
   const [currentUserRole, setCurrentUserRole] = useState<string>('');
-
+  const [showConfirmClose, setShowConfirmClose] = useState(false);
   const [formData, setFormData] = useState({
     subject: '',
     content: '',
@@ -172,6 +172,27 @@ export default function MessagesPage() {
     });
   };
 
+const handleIntentarCerrar = (open: boolean) => {
+    if (!open) {
+      // Si está intentando cerrar, comprobamos si ha escrito algo
+      if (formData.subject !== '' || formData.content !== '' || formData.receiverId !== '') {
+        setShowConfirmClose(true); // Si hay texto, mostramos confirmación
+      } else {
+        // Si está vacío, cerramos normal
+        setIsDialogOpen(false);
+        resetForm();
+      }
+    } else {
+      setIsDialogOpen(true);
+    }
+  };
+
+  const confirmarCierre = () => {
+    setShowConfirmClose(false);
+    setIsDialogOpen(false);
+    resetForm();
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('es-ES', {
       year: 'numeric',
@@ -201,20 +222,14 @@ export default function MessagesPage() {
 
   return (
     <div className="container mx-auto p-6 max-w-7xl">
-      <div className="flex justify-between items-center mb-6">
+     <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Mensajería</h1>
           <p className="text-gray-600 mt-1">
             Comunícate con tu gestor o clientes
-            {unreadCount > 0 && (
-              <Badge className="ml-2 bg-red-500">{unreadCount} no leído{unreadCount !== 1 ? 's' : ''}</Badge>
-            )}
           </p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={(open) => {
-          setIsDialogOpen(open);
-          if (!open) resetForm();
-        }}>
+        <Dialog open={isDialogOpen} onOpenChange={handleIntentarCerrar}>
           <DialogTrigger asChild>
             <Button className="bg-blue-600 hover:bg-blue-700">
               <Send className="w-4 h-4 mr-2" />
@@ -259,7 +274,7 @@ export default function MessagesPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="subject">Asunto *</Label>
+                <Label htmlFor="subject"> Asunto *</Label>
                 <Input
                   id="subject"
                   value={formData.subject}
@@ -282,13 +297,11 @@ export default function MessagesPage() {
               </div>
 
               <div className="flex justify-end space-x-2 pt-4">
-                <Button
+               <Button
                   type="button"
                   variant="outline"
-                  onClick={() => {
-                    setIsDialogOpen(false);
-                    resetForm();
-                  }}
+                  className='hover:bg-red-500 hover:text-white'
+                  onClick={() => handleIntentarCerrar(false)}
                 >
                   Cancelar
                 </Button>
@@ -297,6 +310,32 @@ export default function MessagesPage() {
                 </Button>
               </div>
             </form>
+          </DialogContent>
+                  {/* Añadido dialog para cuando el usuario haya escrito algo y le dé al botón de cancelar, tenga que confirmar el cierre. */}
+        </Dialog>
+        <Dialog open={showConfirmClose} onOpenChange={setShowConfirmClose}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>¿Descartar mensaje?</DialogTitle>
+              <DialogDescription>
+                Si sales ahora, perderás todo lo que has escrito. ¿Estás seguro de que quieres salir?
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex justify-end space-x-2 mt-4">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowConfirmClose(false)}
+              >
+                No, seguir escribiendo
+              </Button>
+              <Button 
+                variant="destructive" 
+                className="bg-red-600 hover:bg-red-700 text-white"
+                onClick={confirmarCierre}
+              >
+                Sí, salir
+              </Button>
+            </div>
           </DialogContent>
         </Dialog>
       </div>
@@ -329,6 +368,11 @@ export default function MessagesPage() {
             <CardTitle className="flex items-center">
               <Mail className="w-5 h-5 mr-2 text-blue-600" />
               Mensajes Recibidos
+              {unreadCount > 0 && (
+                <Badge className="ml-3 bg-red-500 text-sm font-normal">
+                  {unreadCount} no leído{unreadCount !== 1 ? 's' : ''}
+                </Badge>
+              )}
             </CardTitle>
             <CardDescription>
               {receivedMessages.length} mensaje{receivedMessages.length !== 1 ? 's' : ''}

@@ -123,3 +123,26 @@ html {
 .shadow-soft-hover {
   box-shadow: 0 8px 30px rgba(30, 64, 175, 0.15);
 }
+
+/*Personalización de la Barra de Desplazamiento (Scrollbar)*/
+
+/*Ancho y alto de la barra entera */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+/* La barra por donde se mueve (el fondo) */
+::-webkit-scrollbar-track {
+  background: transparent; 
+}
+
+::-webkit-scrollbar-thumb {
+  background: #475569; 
+  border-radius: 10px; 
+}
+
+/*Cuando pasas el ratón por encima */
+::-webkit-scrollbar-thumb:hover {
+  background: #64748b; /* Se vuelve un pelín más clarito (slate-500) */
+}
