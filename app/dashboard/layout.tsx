@@ -280,7 +280,7 @@ export default function DashboardLayout({
                     }`}
                   >
                     <Users className={`w-5 h-5 transition-transform duration-200 ${isActive('/dashboard/users') ? '' : 'group-hover:scale-110'}`} />
-                    <span>Usuarios</span>
+                    <span>Gestionar usuarios</span>
                   </button>
                 )}
               </div>
