@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
       data: { nombre, email, telefono, empresa, servicio, mensaje },
     });
 
-    // 2. Configurar el transporte SMTP (Utrebytes)
+    // Configurar el transporte SMTP 
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: Number(process.env.SMTP_PORT),
