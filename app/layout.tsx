@@ -22,11 +22,11 @@ const metadataBase = process.env.NEXTAUTH_URL
 
 export const metadata: Metadata = {
   metadataBase,
-  title: 'SIi Goo Consultores | Gestoría y Contabilidad Analítica Profesional',
+  title: 'Sii Goo Consultores | Gestoría y Contabilidad Analítica Profesional',
   description: 'Servicios profesionales de gestoría especializada en contabilidad analítica. Asesoría fiscal, laboral y contable para empresas de reformas y construcción.',
   keywords: 'gestoría, contabilidad analítica, asesoría fiscal, asesoría laboral, empresas reformas, gestión administrativa',
   openGraph: {
-    title: 'SIi Goo Consultores | Gestoría y Contabilidad Analítica',
+    title: 'Sii Goo Consultores | Gestoría y Contabilidad Analítica',
     description: 'Servicios profesionales de gestoría especializada en contabilidad analítica',
     images: ['/og-image.png'],
     type: 'website',
@@ -75,9 +75,7 @@ export default async function RootLayout({
           {/* Contenido principal de la página */}
           {children}
           
-          {/* El Footer se coloca aquí para que sea global. 
-            Recibe dbContent para estar sincronizado con el Dashboard de contacto.
-          */}
+        
           <Footer 
             isAdmin={!!session} 
             dbContent={dbContent} 

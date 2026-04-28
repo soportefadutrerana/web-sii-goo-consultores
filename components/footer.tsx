@@ -76,10 +76,10 @@ export default function Footer({ isAdmin = false, dbContent = {} }: FooterProps)
           <div>
             <h4 className="text-lg font-bold mb-4">Enlaces</h4>
             <nav className="space-y-2">
-              <FooterLink href="/#servicios">Servicios</FooterLink>
-              <FooterLink href="/#contabilidad-analitica">Contabilidad Analítica</FooterLink>
-              <FooterLink href="/#reformas">Empresas de Reformas</FooterLink>
-              <FooterLink href="/#contacto">Contacto</FooterLink>
+              <FooterLink href="/servicios">Servicios</FooterLink>
+              <FooterLink href="/contabilidad-analitica">Contabilidad Analítica</FooterLink>
+              <FooterLink href="/reformas">Empresas de Reformas</FooterLink>
+              <FooterLink href="/contacto">Contacto</FooterLink>
             </nav>
           </div>
         </div>

@@ -108,6 +108,8 @@ export default function LoginPage() {
               </div>
             </div>
 
+  {/*          //Ocultamos el botón de registrarse y ponemos la carpeta de registro como _registro para que no genere ninguna ruta y sea privada.
+
             <div className="flex items-center justify-between">
               <div className="text-sm">
                 <Link href="/registro" className="font-medium text-blue-600 hover:text-blue-500">
@@ -115,7 +117,7 @@ export default function LoginPage() {
                 </Link>
               </div>
             </div>
-
+*/}
             <Button
               type="submit"
               disabled={loading}

@@ -49,27 +49,35 @@ model VerificationToken {
 
 // User Model
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String    @unique
-  emailVerified DateTime?
-  password      String?
-  image         String?
-  role          String    @default("client") // client, gestor, admin
-  company       String?
-  phone         String?
-  cif           String?
-  address       String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id                String    @id @default(cuid())
+  name              String?
+  email             String    @unique
+  emailVerified     DateTime?
+  password          String?
+  image             String?
+  role              String    @default("client") // client, gestor, admin
+  company           String?
+  phone             String?
+  cif               String?
+  address           String?
+  
+  // --- CAMPOS PARA INVITACIÓN Y RESET DE CONTRASEÑA ---
 
-  accounts         Account[]
-  sessions         Session[]
-  projects         Project[]
-  documents        Document[]
-  messagesSent     Message[] @relation("SentMessages")
-  messagesReceived Message[] @relation("ReceivedMessages")
-  serviceRequests  ServiceRequest[]
+  resetToken        String?   @unique
+  resetTokenExpiry  DateTime?
+  
+  // ----------------------------------------------------
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  accounts          Account[]
+  sessions          Session[]
+  projects          Project[]
+  documents         Document[]
+  messagesSent      Message[] @relation("SentMessages")
+  messagesReceived  Message[] @relation("ReceivedMessages")
+  serviceRequests   ServiceRequest[]
 
   @@map("users")
 }
